@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function mymodule_entity_info() {
+  $info = array();
+
+  $info['book'] = array(
+    'label' => t('Book'),
+    'controller class' => 'EntityAPIController',  // Use the default entity controller.
+    'base table' => 'book',  // The database table where the entity data is stored.
+    'fieldable' => TRUE,     // Allow fields to be added to the entity.
+    'entity keys' => array(
+      'id' => 'id',          // The primary key in the database.
+      'label' => 'title',     // The label for the entity.
+    ),
+    'module' => 'mymodule',  // The module that defines the entity.
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full'),
+        'custom settings' => TRUE,
+      ),
+    ),
+    'access callback' => 'mymodule_book_access',  // Access control callback.
+    'view controller class' => 'EntityDefaultViewsController',  // Views integration.
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ * Define paths to add/edit books.
+ */
+function mymodule_menu() {
+  $items = array();
+
+  // // Page for listing all books.
+  // $items['admin/content/book'] = array(
+  //   'title' => 'Manage Books',
+  //   'page callback' => 'mymodule_book_list',
+  //   'access arguments' => array('administer books'),
+  //   'type' => MENU_NORMAL_ITEM,
+  // );
+
+  // Path for adding a new book.
+  $items['admin/content/book/add'] = array(
+    'title' => 'Add Book',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mymodule_book_form'),
+    'access arguments' => array('administer books'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Form to add/edit a book entity.
+ */
+function mymodule_book_form($form, &$form_state, $book = NULL) {
+  if (!$book) {
+    $book = new stdClass();
+    $book->id = NULL;
+    $book->title = '';
+    $book->author = '';
+  }
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#default_value' => $book->title,
+    '#required' => TRUE,
+  );
+
+  $form['author'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Author'),
+    '#default_value' => $book->author,
+    '#required' => TRUE,
+  );
+
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Book'),
+  );
+
+  // Store the book object in the form state.
+  $form_state['book'] = $book;
+
+  return $form;
+}
+
+/**
+ * Form submission handler for saving a book entity.
+ */
+function mymodule_book_form_submit($form, &$form_state) {
+  $book = $form_state['book'];
+  $book->title = $form_state['values']['title'];
+  $book->author = $form_state['values']['author'];
+
+  // Save the book entity.
+  mymodule_book_save($book);
+
+  drupal_set_message(t('The book has been saved.'));
+  drupal_goto('admin/content');
+}
+
+
+/**
+ * Load a book entity by its ID.
+ */
+function mymodule_book_load($id) {
+  return entity_load('book', array($id));
+}
+
+/**
+ * Save a book entity.
+ */
+function mymodule_book_save($book) {
+  return entity_save('book', $book);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function mymodule_permission() {
+  return array(
+    'administer books' => array(
+      'title' => t('Administer books'),
+    ),
+  );
+}
+

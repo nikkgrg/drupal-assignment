@@ -1,0 +1,4 @@
+name = First Entity
+description = Creating my first entity for the test.
+core = 7.x
+dependencies[] = entity

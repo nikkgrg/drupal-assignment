@@ -1,0 +1,4 @@
+name = Testing Entity
+description = This is my testing entity
+core = 7.x
+dependencies[] = entity

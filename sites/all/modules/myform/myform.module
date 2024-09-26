@@ -1,0 +1,156 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function myform_menu() {
+  $items = array();
+
+  $items['myform'] = array(
+    'title' => 'My AJAX Form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('my_ajax_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['myform/list'] = array(
+    'title' => 'View users',
+    'page callback' => 'view_user_list',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['myform-submit'] = array(
+    'title' => 'Ajax  Form Submit',
+    'page callback' => 'my_ajax_form_submit',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+  
+  /**
+   * Page callback for /hello.
+   */
+  function myform_page() {
+    // Create the form
+    $form = drupal_get_form('my_ajax_form');
+    return $form;
+  }
+
+  /**
+ * Form definition for the custom AJAX form.
+ */
+function my_ajax_form($form, &$form_state) {
+  // Add  textfields
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#attributes' => array(
+      'id' => 'name',  // Assign an ID for easier access
+    ),
+    '#ajax' => array(
+      'callback' => 'my_ajax_form_submit',
+      'wrapper' => 'ajax-form-message', // ID of the HTML element to replace
+    ),
+  );
+
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email'),
+    '#attributes' => array(
+      'id' => 'email',  // Assign an ID for easier access
+    ),
+    '#ajax' => array(
+      'callback' => 'my_ajax_form_submit',
+      'wrapper' => 'ajax-form-message', // ID of the HTML element to replace
+    ),
+  );
+
+  //Add a submit button with AJAX properties
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#attributes' => array(
+      'id' => 'form',  // Assign an ID for easier access
+    ),
+    '#ajax' => array(
+      'callback' => 'my_ajax_form_submit',
+      'wrapper' => 'ajax-form-message', // ID of the HTML element to replace
+    ),
+  );
+
+  //Add a placeholder for AJAX response
+  $form['message'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div id="ajax-form-message"></div>',
+  );
+
+  // Attach custom JavaScript
+  drupal_add_js(drupal_get_path('module', 'myform') . '/js/myform.js', 'file');
+
+  return $form;
+}
+
+// /**
+//  * AJAX callback function for the form.
+//  */
+function myform_ajax_page() {
+  return drupal_render(drupal_get_form(my_ajax_form));
+}
+
+function my_ajax_form_submit($form, &$form_state){
+  echo "<pre>"; print_r($form_state);die;
+  /*$response = array();
+  $insert = '';
+
+  //Get the submitted value
+  $name = $form_state['values']['name'];
+  $email = $form_state['values']['email'];
+
+  // Insert the data into a custom database table 'my_custom_table'.
+  if(!empty($name) && !empty($email)){
+    $insert = db_insert('user_info') // Table name without curly braces.
+    ->fields(array(
+      'name' => $name,   // 'name' column in the database.
+      'email' => $email, // 'email' column in the database.
+    ))
+    ->execute();
+  }
+
+  // Check if insert was successful.
+  if ($insert) {
+    $response['#markup'] = '<p>' . t('Hello, @name!', array('@name' => $name)) . '</p>';
+  } else {
+    $response['#markup'] = '<p> Values are missing!!</p>';
+  }
+  // Set a message to return
+  return $response;*/
+}
+
+/**
+ * Create a view to see the users subimitted by the AJAX form
+ */
+
+ function view_user_list(){
+  $rows = array();
+  $query = db_select('user_info', 't')
+    ->fields('t', array('name', 'email')) // Adjust fields as needed.
+    ->execute();
+ 
+  foreach ($query as $record) {
+    // Create a row for each record.
+    $rows[] = array(
+      'data' => array(
+        $record->name,
+        $record->email,
+      ),
+    );
+  }
+  // Define the table header.
+  $header = array('Name', 'Email');
+  $output = theme('table', array('header' => $header, 'rows' => $rows));
+  return $output;  
+ }

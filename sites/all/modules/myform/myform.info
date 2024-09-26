@@ -1,0 +1,3 @@
+name = My Form
+description = Provides a custom form with AJAX submission.
+core = 7.x

@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+
+/* * Implements hook_entity_info() */
+/**
+ * Implements hook_entity_info().
+ */
+function testing_entity_info() {
+  $info = array();
+
+  $info['book'] = array(
+    'label' => t('Book'),
+    'controller class' => 'EntityAPIController',  // Use the default entity controller.
+    'base table' => 'book',  // The database table where the entity data is stored.
+    'fieldable' => TRUE,     // Allow the entity to have fields.
+    'entity keys' => array(
+      'id' => 'id',          // The primary key in the database.
+      'label' => 'title',     // The label or name of the entity.
+    ),
+    'module' => 'testing',  // The module that defines the entity.
+    'access callback' => 'testing_book_access', // Access control callback.
+    'views controller class' => 'EntityDefaultViewsController',  // For integration with Views.
+  );
+
+  return $info;
+}

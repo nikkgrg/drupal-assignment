@@ -1,0 +1,22 @@
+<?php
+
+function firstentity_schema() {
+    $schema = array();
+    $schema['firstentity'] = array(
+        'description' => 'The base table is for first entity.',
+        'fields' => array(
+          'id' => array(
+            'description' => 'The primary key for a entity.',
+            'type' => 'serial',
+            'unsigned' => TRUE,
+            'not null' => TRUE),
+          'name' => array(
+            'description' => 'Name of the entity.',
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,),
+          ),
+        'primary key' => array('id'),
+        );
+       // db_create_table('firstentity', $schema['firstentity']);
+    }

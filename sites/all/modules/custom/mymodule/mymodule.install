@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+
+ /**
+ * Implements hook_schema().
+ */
+function mymodule_schema() {
+  $schema = array();
+
+  $schema['book'] = array(
+    'description' => 'Stores book data.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary identifier for the book entity.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of the book.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'author' => array(
+        'description' => 'The author of the book.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ * Create database table on module installation.
+ */
+function mymodule_install() {
+  drupal_install_schema('mymodule');
+}
+
+/**
+ * Implements hook_uninstall().
+ * Remove table on module uninstallation.
+ */
+function mymodule_uninstall() {
+  drupal_uninstall_schema('mymodule');
+}
+
+
+?>

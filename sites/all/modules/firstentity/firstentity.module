@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * Implements hook info().
+ */
+function firstentity_entity_info() {
+  $info = array();
+  $info['firstentity'] = array(
+    'lable' => t('fisrtentity'), //human readable name
+    'controllers' => array(
+      'storage' => 'demo_entity_storage',
+      'view' => 'demo_entity_view',
+      'form' => array(
+        'default' => 'demo_entity_form',
+      ),
+    ),
+    'base_table' => 'fisrtentity', //to store the entity data
+    'entity keys' => array(
+      'id' => 'id',
+      'label' => 'name',
+    ),
+    'fieldable' => TRUE,
+    'views query' => array(
+      'base table' => 'fisrtentity',
+    ),
+   // 'entity class' => 'fisrtentity',
+  );
+  return $info;
+
+}
+
+/**
+ * Implements hook_menu().
+ */
+function firstentity_menu() {
+  $items = array();
+  $items['admin/structure/addentity'] = array(
+    'title' => 'Demo Entity',
+    'description' => 'A demo entity',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('demo_entity_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+
+  );
+  $items['admin/config/firstentity'] = array(
+    'title' => 'Add Demo Entity',
+    'description' => 'A demo entity',
+    'page callback' => 'demo_entity_view',
+    //'page arguments' => array('demo_entity_view'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+
+  );
+  return $items;
+}
+
+/**
+ * Custom storage handler for firstentity.
+ */
+function demo_entity_storage($entity) {
+    $entity_name = isset($entity->name)?$entity->name:'';
+    $id = db_insert('firstentity')
+        ->fields(array('name' => $entity_name))->execute();
+    return $id;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function demo_entity_view() {
+  $rows = array();
+  $query = db_select('firstentity', 't')
+    ->fields('t', array('id', 'name')) // Adjust fields as needed.
+    ->execute();
+ 
+  foreach ($query as $record) {
+    // Create a row for each record.
+    $rows[] = array(
+      'data' => array(
+        $record->id,
+        $record->name,
+      ),
+    );
+  }
+  // Define the table header.
+  $header = array('ID', 'Name');
+  $output = l('Add Entity', '/admin/structure/addentity');
+  $output .= theme('table', array('header' => $header, 'rows' => $rows));
+  return $output;  
+
+}
+
+/**
+ * Form for creating and editing firstentity.
+ */
+function demo_entity_form($form, &$form_state, $entity = NULL) {
+  //Add an anchor link using the #markup property.
+  $form['info_link'] = array(
+    '#markup' => l(t('View Entities'), '/admin/config/firstentity'),
+  );
+
+  //Add a textfield
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#default_value' => isset($entity->name) ? $entity->name : '',
+    '#required' => TRUE,
+  );
+
+  //Add submit button
+  $form['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission handler for demo_entity_form().
+ */
+function demo_entity_form_submit($form, &$form_state) {
+  $entity = (object) $form_state['values'];
+  demo_entity_storage($entity);
+  drupal_set_message(t('Entity saved.'));
+}
+
+?>

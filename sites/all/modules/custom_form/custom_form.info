@@ -1,0 +1,6 @@
+name = Custom Form
+description = A custom configuration form
+core = 7.x
+
+; NEW LINE
+configure = admin/config/custom_form

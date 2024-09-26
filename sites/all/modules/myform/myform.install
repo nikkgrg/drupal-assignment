@@ -1,0 +1,35 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function myform_schema() {
+  $schema = array();
+
+  $schema['user_info'] = array(
+    'description' => 'Table for storing user name from the Ajax form.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for the entity.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name entered in the form.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'email' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The email entered in the form.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+?>

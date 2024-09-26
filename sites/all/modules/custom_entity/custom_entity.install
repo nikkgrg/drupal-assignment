@@ -1,0 +1,29 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function custom_entity_schema() {
+  $schema = array();
+
+  $schema['custom_entity'] = array(
+    'description' => 'Table for storing custom entities.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for the entity.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the custom entity.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+?>

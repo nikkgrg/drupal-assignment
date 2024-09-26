@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_form_menu() {
+  $items = array();
+
+  $items['admin/config/custom_form'] = array(
+    'title' => 'Current posts',
+    'description' => 'Configuration for Current posts module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_form_page'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function custom_form_page($form, &$form_state){
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save settings'),   
+  );   
+  return $form;
+}
+
+?>

@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_entity_menu() {
+  $items = array();
+
+  $items['admin/structure/custom_entity'] = array(
+    'title' => 'Custom Entity Settings',
+    'description'       =>  'A custom content entity created by Nikita',
+    'page callback'     =>  'drupal_get_form',
+    'page arguments'    =>   array('custom_entity_form'),
+    'access callback'   =>   TRUE,  //any user can access this page
+    'access arguments'  =>   array('administer custom entity'),
+    'type'              =>   MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback for custom entity settings.
+ */
+function custom_entity_settings_page() {
+  return 'Custom entity settings page.';
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function custom_entity_entity_info() {
+  $info = array();
+
+  $info['custom_entity'] = array(
+    'label' => t('Custom Entity'),
+    'controllers' => array(
+      'storage' => 'custom_entity_storage',
+      'view' => 'custom_entity_view',
+      'form' => array(
+        'default' => 'custom_entity_form',
+        'delete' => 'custom_entity_delete_form',
+      ),
+    ),
+    'base table' => 'custom_entity',
+    'entity keys' => array(
+      'id' => 'id',
+      'label' => 'name',
+    ),
+    'fieldable' => TRUE,
+    'views query' => array(
+      'base table' => 'custom_entity',
+    ),
+    'entity class' => 'CustomEntity',
+  );
+
+  return $info;
+}
+
+/**
+ * Custom storage handler for custom_entity.
+ */
+function custom_entity_storage($op, $entity, $field = NULL) {
+  echo $op. "<pre>";
+  print_r($entity); die;
+  switch ($op) {
+    case 'save':
+      db_merge('custom_entity')
+        ->key(array('id' => $entity->id))
+        ->fields(array('name' => $entity->name))
+        ->execute();
+      break;
+    case 'load':
+      $result = db_select('custom_entity', 'e')
+        ->fields('e')
+        ->condition('id', $entity->id)
+        ->execute()
+        ->fetchAssoc();
+      $entity->name = $result['name'];
+      break;
+    case 'delete':
+      db_delete('custom_entity')
+        ->condition('id', $entity->id)
+        ->execute();
+      break;
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function custom_entity_view($entity, $type) {
+  if ($type == 'custom_entity') {
+    $entity->content['name'] = array(
+      '#markup' => check_plain($entity->name),
+    );
+  }
+}
+
+/**
+ * Form for creating and editing custom_entity.
+ */
+function custom_entity_form($form, &$form_state, $entity = NULL) {
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#default_value' => isset($entity->name) ? $entity->name : '',
+    '#required' => TRUE,
+  );
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission handler for custom_entity_form().
+ */
+function custom_entity_form_submit($form, &$form_state) {
+  $entity = (object) $form_state['values'];
+  custom_entity_storage('save', $entity);
+  drupal_set_message(t('Entity saved.'));
+}
+
+?>

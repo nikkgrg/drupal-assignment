@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_form_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/custom_form'] = array(
+    'title' => 'A custome form created by Nikita.',
+    'description' => 'Configuration for custom module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_form_page'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/user-interface/list'] = array(
+    'title' => 'View',
+    'description' => 'View submitted data',
+    'page callback' => 'view_form_data',
+    //'page arguments' => array('demo_entity_view'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+
+  );
+
+  return $items;
+}
+
+function custom_form_page($form, &$form_state){
+  //Add an anchor link using the #markup property.
+   $form['info_link'] = array(
+    '#markup' => l(t('View Customers'), '/admin/config/user-interface/list'),
+  );
+
+  // Add textfields
+  $form['name'] = array(
+    '#title' => 'Name',
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  );
+  $form['email'] = array(
+    '#title' => 'Email',
+    '#type' => 'textfield',
+    '#required' => TRUE, 
+  );
+
+  //Add a submit button
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#submit' =>  array('custom_form_page_submit'),
+    '#validate' =>  array('custom_form_page_validate'),
+  );
+  return $form;
+}
+/**
+ * Implements custom_form_page_validate().
+ */
+function custom_form_page_validate($form, $form_state) { 
+  if ((filter_var($form_state['values']['email'], FILTER_VALIDATE_EMAIL)) == FALSE) {
+    form_set_error('email', 'Please enter a valid email address!!');
+  }
+}
+
+/**
+ * Implements custom_form_page_submit().
+ */
+function custom_form_page_submit($form, $form_state) {
+  // Get the submitted value
+  $name = $form_state['values']['name'];
+  $email = $form_state['values']['email'];
+
+  // Here u can insert Your custom form values into your custom table.
+  $insert = db_insert('customer')
+    ->fields(array(
+      'name' => $name,   // 'name' column in the database.
+      'email' => $email, // 'email' column in the database.    
+    ))->execute();
+  // Check if insert was successful.
+  if ($insert) {
+    drupal_set_message("Customer added successfully!!"); 
+  } else {
+    drupal_set_message("Something went wrong!!"); 
+  }
+}
+
+
+/**
+ * Create a view to see the users subimitted by the form
+ */
+
+ function view_form_data(){
+  $rows = array();
+  $query = db_select('customer', 't')
+    ->fields('t', array('name', 'email')) // Adjust fields as needed.
+    ->execute();
+ 
+  foreach ($query as $record) {
+    // Create a row for each record.
+    $rows[] = array(
+      'data' => array(
+        $record->name,
+        $record->email,
+      ),
+    );
+  }
+  // Define the table header.
+  $header = array('Name', 'Email');
+  $output = theme('table', array('header' => $header, 'rows' => $rows));
+  return $output;  
+ }
+?>

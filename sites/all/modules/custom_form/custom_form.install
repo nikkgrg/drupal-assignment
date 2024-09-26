@@ -1,0 +1,29 @@
+<?php
+
+function custom_form_schema() {
+    $schema = array();
+    $schema['customer'] = array(
+        'description' => 'The base table for customers.',
+        'fields' => array(
+          'id' => array(
+            'description' => 'The primary identifier for a customer.',
+            'type' => 'serial',
+            'unsigned' => TRUE,
+            'not null' => TRUE),
+          'name' => array(
+            'description' => 'Name of the customer.',
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'default' => ''),
+          'email' => array(
+            'description' => 'Email of the customer.',
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'default' => ''),
+          ),
+        'primary key' => array('id'),
+        );
+        //db_create_table('customer', $schema['customer']);
+    }
