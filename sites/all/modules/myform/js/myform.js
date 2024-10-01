@@ -23,15 +23,13 @@
                     dataType: 'json',
                     data: JSON.stringify({ name: 'name',email:'email', }),
                     success: function(response) {
-                        console.log('hi11111111' + response);
-                        return false;
                         $('#form').html(response.message);
+                        return false;
                     },
                     error: function(error) {
-                        console.log('hi2222222'+error);
-                        return false;
                         // Handle the error.
                         $('#form').html('An error occurred. Please try again.');
+                        return false;
                     }
                 });
             }
